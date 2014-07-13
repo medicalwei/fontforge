@@ -1318,8 +1318,10 @@ return( ilist );
 
     // We perform a very loose adjacency check.
     if (( m1->s->to == m2->s->from && RealWithin(t1,1.0,.01) && RealWithin(t2,0,.01)) ||
-	    ( m1->s->from == m2->s->to && RealWithin(t1,0,.01) && RealWithin(t2,1.0,.01)))
-return( ilist );
+	    ( m1->s->from == m2->s->to && RealWithin(t1,0,.01) && RealWithin(t2,1.0,.01))) {
+      SONotify("Discarding intersection at (%f, %f) due to proximity to a segment join.\n", m1->s->to->me.x, m1->s->to->me.y);
+      return( ilist );
+    }
 
     // If there was already a starting or ending intersection different from the provided intersection
     // and if the provided intersection was to be at the start or end of the monotonic
@@ -1339,8 +1341,10 @@ return( ilist );
     /* The ordinary join of one spline to the next doesn't really count */
     /*  Or one monotonic sub-spline to the next either */
     if (( m1->next==m2 && RealNear(t1,m1->tend) && RealNear(t2,m2->tstart)) ||
-	    (m2->next==m1 && RealNear(t1,m1->tstart) && RealNear(t2,m2->tend)) )
-return( ilist );
+	    (m2->next==m1 && RealNear(t1,m1->tstart) && RealNear(t2,m2->tend)) ) {
+      SONotify("Discarding intersection at (%f, %f) due to proximity to a segment join.\n", inter->x, inter->y);
+      return( ilist );
+    }
 
     if ( RealWithin(m1->tstart,t1,.01) )
 	il = m1->start;
