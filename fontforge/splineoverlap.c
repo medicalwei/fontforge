@@ -1358,7 +1358,7 @@ return( ilist );
 	    ((RealWithin(m2->tstart,t2,.01) && m2->start==il) ||
 	     (RealWithin(m2->tend,t2,.01) && m2->end==il)) )
 return( ilist );
-    for ( il = ilist; il!=NULL; il=il->next ) {
+    for ( il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
 // If all else fails, we try to add an intersection.
 return( _AddIntersection(ilist,m1,m2,t1,t2,inter));
@@ -1379,7 +1379,7 @@ return( ilist );
 ValidateMListTs_IF_VERBOSE(il->monos)
     SplitMonotonicAt(m1,which,coord,&id1);
     SplitMonotonicAt(m2,which,coord,&id2);
-    for ( Intersection * il = ilist; il!=NULL; il=il->next ) {
+    for ( Intersection * il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
     if ( !id1.new && !id2.new )
 return( ilist );
