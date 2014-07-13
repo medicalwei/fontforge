@@ -77,7 +77,7 @@
 // to this code and capturing and diffing output in order to track changes
 // in errors and reports.
 // (The pointers tend to clutter the diff a bit.)
-// #define FF_OVERLAP_VERBOSE
+#define FF_OVERLAP_VERBOSE
 
 static char *glyphname=NULL;
 
@@ -744,7 +744,7 @@ return;
 	m->start = il;
 	_AddSpline(il,m,m->tstart,false);
 	if (m->prev != NULL) _AddSpline(il,m->prev,m->prev->tend,true);
-    } else if ((t-m->tstart < m->tend-t) && ((m->tstart == t) || 
+    } else if ((t-m->tstart > m->tend-t) && ((m->tend == t) || 
            (Within4RoundingErrors(m->tend,t) && ( m->end==NULL || (
            Within16RoundingErrors(m->end->inter.x,il->inter.x) &&
            Within16RoundingErrors(m->end->inter.y,il->inter.y)))))) {
