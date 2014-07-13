@@ -1248,7 +1248,8 @@ ValidateMListTs_IF_VERBOSE(closest->monos)
         AddSpline(closest,m2,t2);
 ValidateMListTs_IF_VERBOSE(closest->monos)
     }
-      
+          for ( il = ilist; il!=NULL; il=il->next )
+ValidateMListTs_IF_VERBOSE(il->monos)
 return( ilist );
 }
 
@@ -1256,7 +1257,8 @@ static Intersection *AddIntersection(Intersection *ilist,Monotonic *m1,
 	Monotonic *m2,extended t1,extended t2,BasePoint *inter) {
     Intersection *il;
     extended ot1 = t1, ot2 = t2;
-
+    for ( il = ilist; il!=NULL; il=il->next )
+ValidateMListTs_IF_VERBOSE(il->monos)
     /* This is just a join between two adjacent monotonics. There might already*/
     /*  be an intersection there, but if there be, we've already found it */
     /* Do this now, because no point wasting the time it takes to ImproveInter*/
@@ -1356,7 +1358,8 @@ return( ilist );
 	    ((RealWithin(m2->tstart,t2,.01) && m2->start==il) ||
 	     (RealWithin(m2->tend,t2,.01) && m2->end==il)) )
 return( ilist );
-
+    for ( il = ilist; il!=NULL; il=il->next ) {
+ValidateMListTs_IF_VERBOSE(il->monos)
 // If all else fails, we try to add an intersection.
 return( _AddIntersection(ilist,m1,m2,t1,t2,inter));
 }
@@ -1372,9 +1375,12 @@ static Intersection *SplitMonotonicsAt(Monotonic *m1,Monotonic *m2,
 	 Within64RoundingErrors(coord,((m2->s->splines[which].a*m2->tstart+m2->s->splines[which].b)*m2->tstart+m2->s->splines[which].c)*m2->tstart+m2->s->splines[which].d) ||
 	 Within64RoundingErrors(coord,((m2->s->splines[which].a*m2->tend+m2->s->splines[which].b)*m2->tend+m2->s->splines[which].c)*m2->tend+m2->s->splines[which].d ) )
 return( ilist );
-
+    for ( Intersection * il = ilist; il!=NULL; il=il->next )
+ValidateMListTs_IF_VERBOSE(il->monos)
     SplitMonotonicAt(m1,which,coord,&id1);
     SplitMonotonicAt(m2,which,coord,&id2);
+    for ( Intersection * il = ilist; il!=NULL; il=il->next ) {
+ValidateMListTs_IF_VERBOSE(il->monos)
     if ( !id1.new && !id2.new )
 return( ilist );
     if ( !id1.new )
