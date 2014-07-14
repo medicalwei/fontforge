@@ -1329,8 +1329,14 @@ ValidateMListTs_IF_VERBOSE(il->monos)
 	closest->next = ilist;
 	ilist = closest;
         // Add the splines to the list in the intersection.
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
         AddSpline(closest,m1,t1);
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
         AddSpline(closest,m2,t2);
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
 ValidateMListTs_IF_VERBOSE(closest->monos)
         if (closest->monos == NULL) {
           SONotify("Never mind that new point.\n");
