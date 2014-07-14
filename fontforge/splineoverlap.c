@@ -799,10 +799,10 @@ return;
 	else if (m->tstart == m->tend)
 	    SOError( "Attempt to subset monotonic rejoin inappropriately: m->tstart and m->tend are equal (%f = %f, t = %f)\n",
 		    m->tstart, m->tend, t );
-	else if (Within4RoundingErrors(m->tstart, m->tend))
+	else if (Within16RoundingErrors(m->tstart, m->tend))
 	    SOError( "Attempt to subset monotonic rejoin inappropriately: m->tstart and m->tend are very close (%f = %f, t = %f)\n",
 		    m->tstart, m->tend, t );
-        else if (Within4RoundingErrors(m->tstart, m->tend))
+        else if (Within16RoundingErrors(m->tstart, m->tend))
 	    SOError( "Attempt to subset monotonic rejoin inappropriately: m->tstart and m->tend are very close (%f = %f, t = %f)\n",
 		    m->tstart, m->tend, t );
 	else if (Within4RoundingErrors(m->s->from->me.x,m->s->to->me.x) && Within4RoundingErrors(m->s->from->me.y,m->s->to->me.y))
@@ -1097,7 +1097,7 @@ static void SplitMonotonicAtFlex(Monotonic *m,int which,bigreal coord,
         id->inter.y = evalSpline(m->s, t, 0);
       }
     } else {
-      if (Within4RoundingErrors(t,m->tstart) || Within4RoundingErrors(t,m->tend)) {
+      if (Within16RoundingErrors(t,m->tstart) || Within16RoundingErrors(t,m->tend)) {
         SOError("We're about to create a spline with a very small t-value.\n");
       }
       if (doit) SplitMonotonicAtT(m,which,t,coord,id);
