@@ -134,25 +134,25 @@ extended evalSpline(Spline *s, extended t, int dim) {
 
 static void ValidateMonotonic(Monotonic *ms) {
   if (ms->start != NULL) {
-    if (!Within16RoundingErrors(ms->start->inter.x, evalSpline(ms->s, ms->tstart, 0)) ||
-        !Within16RoundingErrors(ms->start->inter.y, evalSpline(ms->s, ms->tstart, 1)))
+    if (!Within64RoundingErrors(ms->start->inter.x, evalSpline(ms->s, ms->tstart, 0)) ||
+        !Within64RoundingErrors(ms->start->inter.y, evalSpline(ms->s, ms->tstart, 1)))
       SOError("The start of the monotonic does not match the listed intersection.\n");
     ValidateMListTs(ms->start->monos);
   }
   if (ms->end != NULL) {
-    if (!Within16RoundingErrors(ms->end->inter.x, evalSpline(ms->s, ms->tend, 0)) ||
-        !Within16RoundingErrors(ms->end->inter.y, evalSpline(ms->s, ms->tend, 1)))
+    if (!Within64RoundingErrors(ms->end->inter.x, evalSpline(ms->s, ms->tend, 0)) ||
+        !Within64RoundingErrors(ms->end->inter.y, evalSpline(ms->s, ms->tend, 1)))
       SOError("The end of the monotonic does not match the listed intersection.\n");
     ValidateMListTs(ms->end->monos);
   }
   if (ms->tstart == 0) {
-    if (!Within16RoundingErrors(ms->s->from->me.x, evalSpline(ms->s, ms->tstart, 0)) ||
-        !Within16RoundingErrors(ms->s->from->me.y, evalSpline(ms->s, ms->tstart, 1)))
+    if (!Within64RoundingErrors(ms->s->from->me.x, evalSpline(ms->s, ms->tstart, 0)) ||
+        !Within64RoundingErrors(ms->s->from->me.y, evalSpline(ms->s, ms->tstart, 1)))
       SOError("The start of the monotonic does not match that of the containing spline.\n");
   }
   if (ms->tend == 1) {
-    if (!Within16RoundingErrors(ms->s->to->me.x, evalSpline(ms->s, ms->tend, 0)) ||
-        !Within16RoundingErrors(ms->s->to->me.y, evalSpline(ms->s, ms->tend, 1)))
+    if (!Within64RoundingErrors(ms->s->to->me.x, evalSpline(ms->s, ms->tend, 0)) ||
+        !Within64RoundingErrors(ms->s->to->me.y, evalSpline(ms->s, ms->tend, 1)))
       SOError("The start of the monotonic does not match that of the containing spline.\n");
   }
   return;
