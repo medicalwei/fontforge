@@ -134,14 +134,14 @@ extended evalSpline(Spline *s, extended t, int dim) {
 
 static void ValidateMonotonic(Monotonic *ms) {
   if (ms->start != NULL) {
-    if (!Within64RoundingErrors(ms->start->inter.x, evalSpline(ms->s, ms->tstart, 0)) ||
-        !Within64RoundingErrors(ms->start->inter.y, evalSpline(ms->s, ms->tstart, 1)))
+    if (!RealWithin(ms->start->inter.x, evalSpline(ms->s, ms->tstart, 0), 0.01) ||
+        !RealWithin(ms->start->inter.y, evalSpline(ms->s, ms->tstart, 1), 0.01))
       SOError("The start of the monotonic does not match the listed intersection.\n");
     ValidateMListTs(ms->start->monos);
   }
   if (ms->end != NULL) {
-    if (!Within64RoundingErrors(ms->end->inter.x, evalSpline(ms->s, ms->tend, 0)) ||
-        !Within64RoundingErrors(ms->end->inter.y, evalSpline(ms->s, ms->tend, 1)))
+    if (!RealWithin(ms->end->inter.x, evalSpline(ms->s, ms->tend, 0), 0.01) ||
+        !RealWithin(ms->end->inter.y, evalSpline(ms->s, ms->tend, 1), 0.01))
       SOError("The end of the monotonic does not match the listed intersection.\n");
     ValidateMListTs(ms->end->monos);
   }
