@@ -1481,11 +1481,13 @@ return( ilist );
 return( ilist );
 	t2 = m2->tend;
     }
-
+#if 0
     SplitMonotonicAtT(m1,-1,t1,0,&id1);
     SplitMonotonicAtT(m2,-1,t2,0,&id2);
     ilist = check = _AddIntersection(ilist,id1.m,id1.otherm,id1.t,id1.othert,&id2.inter);
     ilist = _AddIntersection(ilist,id2.m,id2.otherm,id2.t,id2.othert,&id2.inter);	/* Use id1.inter to avoid rounding errors */
+#endif // 0
+    ilist = _AddIntersection(ilist,m1,m2,t1,t2,inter);
     if ( check!=ilist )
 	IError("Added too many intersections.");
 return( ilist );
