@@ -1037,10 +1037,15 @@ static void SplitMonotonicAtFlex(Monotonic *m,int which,bigreal coord,
     bigreal t;
     int low=0, high=0;
 
-    if (( which==0 && coord==m->b.minx ) || (which==1 && coord==m->b.miny))
+    if (( which==0 && coord<=m->b.minx ) || (which==1 && coord<=m->b.miny)) {
 	low = true;
-    else if ( (which==0 && coord==m->b.maxx) || (which==1 && coord==m->b.maxy) )
+	if (( which==0 && coord<m->b.minx ) || (which==1 && coord<m->b.miny))
+	  SOError("Coordinate out of range.\n");
+    } else if ( (which==0 && coord==m->b.maxx) || (which==1 && coord==m->b.maxy) ) {
 	high = true;
+	if (( which==0 && coord>m->b.maxx ) || (which==1 && coord>m->b.maxy))
+	  SOError("Coordinate out of range.\n");
+    }
 
     if ( low || high ) {
 	if ( (low && (&m->xup)[which]) || (high && !(&m->xup)[which]) ) {
