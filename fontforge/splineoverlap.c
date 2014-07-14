@@ -1032,8 +1032,8 @@ static void SplitMonotonicAtT(Monotonic *m,int which,bigreal t,bigreal coord,
 // Validate(m, NULL);
 }
 
-static void SplitMonotonicAt(Monotonic *m,int which,bigreal coord,
-	struct inter_data *id) {
+static void SplitMonotonicAtFlex(Monotonic *m,int which,bigreal coord,
+	struct inter_data *id, int doit) {
     bigreal t;
     int low=0, high=0;
 
@@ -1060,7 +1060,7 @@ static void SplitMonotonicAt(Monotonic *m,int which,bigreal coord,
       ) {
       SONotify("We do not split at the end.\n");
       id->m = m; id->t;
-      id->otherm = NULL; id->othert = 0;
+      id->otherm = NULL; id->othert = 0; // TODO
       if (t == 1) {
         id->inter.x = m->s->to->me.x;
         id->inter.y = m->s->to->me.y;
@@ -1092,10 +1092,22 @@ static void SplitMonotonicAt(Monotonic *m,int which,bigreal coord,
         id->inter.y = evalSpline(m->s, t, 0);
       }
     } else {
-      SplitMonotonicAtT(m,which,t,coord,id);
+      if (doit) SplitMonotonicAtT(m,which,t,coord,id);
     }
     // I'm thinking about adapting AddSpline(Intersection *il,Monotonic *m,extended t) for this.
 
+}
+
+static void SplitMonotonicAt(Monotonic *m,int which,bigreal coord,
+	struct inter_data *id) {
+  return SplitMonotonicAtFlex(m, which, coord,
+	id, 1);
+}
+
+static void SplitMonotonicAtFake(Monotonic *m,int which,bigreal coord,
+	struct inter_data *id) {
+  return SplitMonotonicAtFlex(m, which, coord,
+	id, 0);
 }
 
 /* An IEEE double has 52 bits of precision. So one unit of rounding error will be */
@@ -1424,8 +1436,8 @@ static Intersection *SplitMonotonicsAt(Monotonic *m1,Monotonic *m2,
 return( ilist );
     for ( Intersection * il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
-    SplitMonotonicAt(m1,which,coord,&id1);
-    SplitMonotonicAt(m2,which,coord,&id2);
+    SplitMonotonicAtFake(m1,which,coord,&id1);
+    SplitMonotonicAtFake(m2,which,coord,&id2);
     for ( Intersection * il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
     if ( !id1.new && !id2.new ) {
@@ -1437,10 +1449,12 @@ return( ilist );
 	id2.inter = id1.inter; // Use the senior intersection if possible.
     /* else if ( !id2.new ) */		/* We only use id2.inter */
 	/* id1.inter = id2.inter;*/
-    ilist = check = _AddIntersection(ilist,id1.m,id1.otherm,id1.t,id1.othert,&id2.inter);
-    ilist = _AddIntersection(ilist,id2.m,id2.otherm,id2.t,id2.othert,&id2.inter);	/* Use id1.inter to avoid rounding errors */
-    if ( check!=ilist )
-	IError("Added too many intersections.");
+// TODO: This crashes if otherm is null. We need to deal with that somehow.
+    // ilist = check = _AddIntersection(ilist,id1.m,id1.otherm,id1.t,id1.othert,&id2.inter);
+    // ilist = _AddIntersection(ilist,id2.m,id2.otherm,id2.t,id2.othert,&id2.inter);	/* Use id1.inter to avoid rounding errors */
+    ilist = _AddIntersection(ilist,m1,m2,id1.t,id2.t,&id2.inter);
+    // if ( check!=ilist )
+	// IError("Added too many intersections.");
 return( ilist );
 }
 
