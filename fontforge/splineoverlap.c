@@ -1097,6 +1097,9 @@ static void SplitMonotonicAtFlex(Monotonic *m,int which,bigreal coord,
         id->inter.y = evalSpline(m->s, t, 0);
       }
     } else {
+      if (Within4RoundingErrors(t,m->tstart) || Within4RoundingErrors(t,m->tend)) {
+        SOError("We're about to create a spline with a very small t-value.\n");
+      }
       if (doit) SplitMonotonicAtT(m,which,t,coord,id);
     }
     // I'm thinking about adapting AddSpline(Intersection *il,Monotonic *m,extended t) for this.
