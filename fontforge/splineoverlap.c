@@ -921,9 +921,12 @@ return;
 	      _AddSpline(il,m2,t,false);
 	      // If the end of m before break-up has a reference to m, we must replace that reference with one to m2.
 	      if (m2->end != NULL) MListReplaceMonotonic(m2->end->monos, m, m2, true);
+ValidateMonotonic(m);
+ValidateMonotonic(m2);
 	}
     }
 ValidateMListTs_IF_VERBOSE(il->monos)
+ValidateMonotonic(m);
 // Validate(m, NULL);
 }
 
