@@ -132,6 +132,32 @@ extended evalSpline(Spline *s, extended t, int dim) {
   return ((s->splines[dim].a*t+s->splines[dim].b)*t+s->splines[dim].c)*t+s->splines[dim].d;
 }
 
+static void ValidateMonotonic(Monotonic *ms) {
+  if (ms->start != NULL) {
+    if (!Within4RoundingErrors(ms->start->inter.x, evalSpline(ms->s, ms->tstart, 0)) ||
+        !Within4RoundingErrors(ms->start->inter.y, evalSpline(ms->s, ms->tstart, 1)))
+      SOError("The start of the monotonic does not match the listed intersection.\n");
+    ValidateMListTs(ms->start->monos);
+  }
+  if (ms->end != NULL) {
+    if (!Within4RoundingErrors(ms->end->inter.x, evalSpline(ms->s, ms->tend, 0)) ||
+        !Within4RoundingErrors(ms->end->inter.y, evalSpline(ms->s, ms->tend, 1)))
+      SOError("The end of the monotonic does not match the listed intersection.\n");
+    ValidateMListTs(ms->end->monos);
+  }
+  if (ms->tstart == 0) {
+    if (!Within4RoundingErrors(ms->s->from->me.x, evalSpline(ms->s, ms->tstart, 0)) ||
+        !Within4RoundingErrors(ms->s->from->me.y, evalSpline(ms->s, ms->tstart, 1)))
+      SOError("The start of the monotonic does not match that of the containing spline.\n");
+  }
+  if (ms->tend == 1) {
+    if (!Within4RoundingErrors(ms->s->to->me.x, evalSpline(ms->s, ms->tend, 0)) ||
+        !Within4RoundingErrors(ms->s->to->me.y, evalSpline(ms->s, ms->tend, 1)))
+      SOError("The start of the monotonic does not match that of the containing spline.\n");
+  }
+  return;
+}
+
 static void Validate(Monotonic *ms, Intersection *ilist) {
     MList *ml;
     int mcnt;
@@ -1224,6 +1250,9 @@ static Intersection *_AddIntersection(Intersection *ilist,Monotonic *m1,
     Intersection *il, *closest=NULL;
     bigreal dist, dx, dy, bestd=9e10;
 
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
+
     // We first search for an existing intersection.
     /* I tried changing from Within16 to Within64 here, and below, and the */
     /*  result was that I cause more new errors (about 6) than I fixed old(1) */
@@ -1317,6 +1346,8 @@ ValidateMListTs_IF_VERBOSE(closest->monos)
     }
           for ( il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
 return( ilist );
 }
 
@@ -1324,6 +1355,8 @@ static Intersection *AddIntersection(Intersection *ilist,Monotonic *m1,
 	Monotonic *m2,extended t1,extended t2,BasePoint *inter) {
     Intersection *il;
     extended ot1 = t1, ot2 = t2;
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
     for ( il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
     /* This is just a join between two adjacent monotonics. There might already*/
@@ -1427,6 +1460,8 @@ return( ilist );
 return( ilist );
     for ( il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
 // If all else fails, we try to add an intersection.
 return( _AddIntersection(ilist,m1,m2,t1,t2,inter));
 }
@@ -1435,7 +1470,8 @@ static Intersection *SplitMonotonicsAt(Monotonic *m1,Monotonic *m2,
 	int which,bigreal coord,Intersection *ilist) {
     struct inter_data id1, id2;
     Intersection *check;
-
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
     /* Intersections (even pseudo intersections) too close together are nasty things! */
     if ( Within64RoundingErrors(coord,((m1->s->splines[which].a*m1->tstart+m1->s->splines[which].b)*m1->tstart+m1->s->splines[which].c)*m1->tstart+m1->s->splines[which].d) ||
 	 Within64RoundingErrors(coord,((m1->s->splines[which].a*m1->tend+m1->s->splines[which].b)*m1->tend+m1->s->splines[which].c)*m1->tend+m1->s->splines[which].d ) ||
@@ -1463,6 +1499,8 @@ return( ilist );
     ilist = _AddIntersection(ilist,m1,m2,id1.t,id2.t,&id2.inter);
     // if ( check!=ilist )
 	// IError("Added too many intersections.");
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
 return( ilist );
 }
 
@@ -2465,7 +2503,11 @@ static Intersection *TryHarderWhenClose(int which, bigreal tried_value, Monotoni
 			if ( (which==0 && rh>m2->b.maxx && rh<=m2->next->b.maxx) ||
 				(which==1 && rh>m2->b.maxy && rh<=m2->next->b.maxy))
 			    m2 = m2->next;
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
 			ilist = SplitMonotonicsAt(m1,m2,which,high,ilist);
+ValidateMonotonic(m1);
+ValidateMonotonic(m2);
 		    }
 		    if ( (&m1->xup)[which]!=(&m2->xup)[which] ) {
 			/* the two monotonics cancel each other out */
