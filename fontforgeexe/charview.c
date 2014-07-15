@@ -3951,13 +3951,14 @@ void CVInfoDrawText(CharView *cv, GWindow pixmap ) {
 	}
     }
     snprintf( buffer, buffersz, _("Active Layer: %s (%s)"),
+	      layername,
 /* GT: Guide layer, make it short */
 	      ( cv->b.drawmode==dm_grid ? _("Guide") :
 /* GT: Background, make it short */
 		cv->b.layerheads[cv->b.drawmode]->background ? _("Back") :
 /* GT: Foreground, make it short */
-		_("Fore") ),
-	      layername );
+		_("Fore") )
+	      );
     GDrawDrawText8(pixmap,LAYER_DATA,ybase,buffer,-1,fg);
     GDrawDrawText8(pixmap,LAYER_DATA,ybase,buffer,-1,fg);
 
@@ -6510,6 +6511,15 @@ return;
     --cv->former_cnt;
     GTabSetRemoveTabByPos(cv->tabs,pos);	/* This should send an event that the selection has changed */
     GTabSetRemetric(cv->tabs);
+}
+
+static void CVMenuOpen(GWindow gw, struct gmenuitem *mi, GEvent *g) {
+    CharView *d = (CharView*)GDrawGetUserData(gw);
+    FontView *fv = NULL;
+    if (d) {
+        fv = (FontView*)d->b.fv;
+    }
+    _FVMenuOpen(fv);
 }
 
 static void CVMenuOpenBitmap(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) {
@@ -9996,13 +10006,14 @@ void _CVMenuNamePoint(CharView *cv, SplinePoint *sp) {
 
     oldname = (sp->name && *sp->name) ? sp->name : NULL;
     ret = gwwv_ask_string(_("Name this point"), oldname,
-			      _("Please name this point"));
+                  _("Please name this point"));
     if ( ret!=NULL ) {
-	name = *ret ? ret : NULL;
-	if (name != oldname || (name && oldname && strcmp(name,oldname))) {
-	    sp->name = name;
-	    CVCharChangedUpdate(&cv->b);
-	}
+        name = *ret ? ret : NULL;
+        if (name != oldname || (name && oldname && strcmp(name,oldname))) {
+            sp->name = name;
+            CVCharChangedUpdate(&cv->b);
+        }
+        free(ret);
     }
 }
 
@@ -11540,7 +11551,7 @@ static GMenuItem2 dummyitem[] = {
 };
 static GMenuItem2 fllist[] = {
     { { (unichar_t *) N_("Font|_New"), (GImage *) "filenew.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'N' }, H_("New|No Shortcut"), NULL, NULL, MenuNew, MID_New },
-    { { (unichar_t *) N_("_Open"), (GImage *) "fileopen.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'O' }, H_("Open|No Shortcut"), NULL, NULL, MenuOpen, MID_Open },
+    { { (unichar_t *) N_("_Open"), (GImage *) "fileopen.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'O' }, H_("Open|No Shortcut"), NULL, NULL, CVMenuOpen, MID_Open },
     { { (unichar_t *) N_("Recen_t"), (GImage *) "filerecent.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 't' }, NULL, dummyitem, MenuRecentBuild, NULL, MID_Recent },
     { { (unichar_t *) N_("_Close"), (GImage *) "fileclose.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("Close|No Shortcut"), NULL, NULL, CVMenuClose, MID_Close },
     { { (unichar_t *) N_("C_lose Tab"), (GImage *) "menuempty.png", COLOR_DEFAULT, COLOR_DEFAULT, NULL, NULL, 0, 1, 0, 0, 0, 0, 1, 1, 0, 'C' }, H_("Close Tab|No Shortcut"), NULL, NULL, CVMenuCloseTab, MID_CloseTab },

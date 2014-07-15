@@ -381,7 +381,7 @@ static pascal OSErr OpenApplicationAE( const AppleEvent * theAppleEvent,
 	start_splash_screen();
     system( "DYLD_LIBRARY_PATH=\"\"; osascript -e 'tell application \"X11\" to activate'" );
     if ( fv_list==NULL )
-	MenuOpen(NULL,NULL,NULL);
+	_FVMenuOpen(NULL);
  fprintf( logfile, " event processed %d.\n", noErr ); fflush( logfile );
 return( noErr );
 }
@@ -393,7 +393,7 @@ static pascal OSErr ReopenApplicationAE( const AppleEvent * theAppleEvent,
 	start_splash_screen();
     system( "DYLD_LIBRARY_PATH=\"\"; osascript -e 'tell application \"X11\" to activate'" );
     if ( fv_list==NULL )
-	MenuOpen(NULL,NULL,NULL);
+	_FVMenuOpen(NULL);
  fprintf( logfile, " event processed %d.\n", noErr ); fflush( logfile );
 return( noErr );
 }
@@ -622,7 +622,7 @@ return( true );
 	    if ( strcmp(arg,"-new")==0 || strcmp(arg,"--new")==0 )
 		FontNew();
 	    else if ( strcmp(arg,"-open")==0 || strcmp(arg,"--open")==0 )
-		MenuOpen(NULL,NULL,NULL);
+		_FVMenuOpen(NULL);
 	    else if ( strcmp(arg,"-quit")==0 || strcmp(arg,"--quit")==0 )
 		MenuExit(NULL,NULL,NULL);
 	    else
@@ -658,18 +658,21 @@ static int ReopenLastFonts(void) {
     FILE *old;
     int any = 0;
 
-    if ( ffdir==NULL )
-return( false );
+    if ( ffdir==NULL ) return false;
+
     sprintf( buffer, "%s/FontsOpenAtLastQuit", ffdir );
     old = fopen(buffer,"r");
-    if ( old==NULL )
-return( false );
+    if ( old==NULL ) {
+        free(ffdir);
+        return false;
+    }
     while ( fgets(buffer,sizeof(buffer),old)!=NULL ) {
-	if ( ViewPostScriptFont(g_strchomp(buffer),0)!=0 )
-	    any = 1;
+    if ( ViewPostScriptFont(g_strchomp(buffer),0)!=0 )
+        any = 1;
     }
     fclose(old);
-return( any );
+    free(ffdir);
+    return any;
 }
 
 #if defined(__Mac)
@@ -1334,7 +1337,7 @@ exit( 0 );
     } else
 #endif
     if ( doopen || !any )
-	MenuOpen(NULL,NULL,NULL);
+	_FVMenuOpen(NULL);
     GDrawEventLoop(NULL);
 
     hotkeysSave();
