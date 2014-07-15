@@ -1061,10 +1061,45 @@ static void SplitMonotonicAtT(Monotonic *m,int which,bigreal t,bigreal coord,
 // Validate(m, NULL);
 }
 
+static extended RealDistance(extended v1, extended v2) {
+  if (v2 > v1) return v2 - v1;
+  else if (v2 < v1) return v1 - v2;
+  return 0.0;
+}
+
+static int RealCloser(extended ref0, extended ref1, extended queryval) {
+  if (RealDistance(ref1, queryval) > RealDistance(ref0, queryval)) return 1;
+  return 0;
+}
+
 static void SplitMonotonicAtFlex(Monotonic *m,int which,bigreal coord,
 	struct inter_data *id, int doit) {
     bigreal t;
     int low=0, high=0;
+    extended startx, starty, endx, endy;
+    {
+      // We set our fallback values.
+      if (m->tstart == 0) {
+        startx = m->s->from->me.x;
+        starty = m->s->from->me.y;
+      } else if (m->start != NULL) {
+        startx = m->start->inter.x;
+        starty = m->start->inter.y;
+      } else {
+        startx = evalSpline(m->s, m->tstart, 0);
+        starty = evalSpline(m->s, m->tstart, 1);
+      }
+      if (m->tend == 1) {
+        endx = m->s->to->me.x;
+        endy = m->s->to->me.y;
+      } else if (m->end != NULL) {
+        endx = m->end->inter.x;
+        endy = m->end->inter.y;
+      } else {
+        endx = evalSpline(m->s, m->tend, 0);
+        endy = evalSpline(m->s, m->tend, 1);
+      }
+    }
 
     if (( which==0 && coord<=m->b.minx ) || (which==1 && coord<=m->b.miny)) {
 	low = true;
@@ -1084,8 +1119,25 @@ static void SplitMonotonicAtFlex(Monotonic *m,int which,bigreal coord,
 	}
     } else {
 	t = IterateSplineSolveFixup(&m->s->splines[which],m->tstart,m->tend,coord);
-	if ( t==-1 )
+	if ( t==-1 ) {
+          // If the solver fails, we try to match an end if feasible.
+	  if (which) {
+            if (RealCloser(starty, endy, coord)) {
+              if (Within16RoundingErrors(coord, endy)) t = m->tend;
+            } else {
+              if (Within16RoundingErrors(coord, starty)) t = m->tstart;
+            }
+          } else {
+            if (RealCloser(startx, endx, coord)) {
+              if (Within16RoundingErrors(coord, endx)) t = m->tend;
+            } else {
+              if (Within16RoundingErrors(coord, startx)) t = m->tstart;
+            }
+          }
+	}
+        if (t == -1)
 	    SOError("Intersection failed!\n");
+        else SONotify("Spline solver failed to find a value; falling back to monotonic end.\n");
     }
     if ((t == m->tend)
 #ifdef FF_RELATIONAL_GEOM
@@ -1125,19 +1177,22 @@ static void SplitMonotonicAtFlex(Monotonic *m,int which,bigreal coord,
         id->inter.x = evalSpline(m->s, t, 0);
         id->inter.y = evalSpline(m->s, t, 0);
       }
-    } else {
+    } else if (t != -1) {
       if (Within16RoundingErrors(t,m->tstart) || Within16RoundingErrors(t,m->tend)) {
         SOError("We're about to create a spline with a very small t-value.\n");
       }
       if (doit) SplitMonotonicAtT(m,which,t,coord,id);
       else {
+        id->new = 1;
         id->t = t;
         id->inter.x = evalSpline(m->s, t, 0);
         id->inter.y = evalSpline(m->s, t, 1);
       }
+    } else {
+        id->t = t;
+        id->inter.x = 0;
+        id->inter.y = 0;
     }
-    // I'm thinking about adapting AddSpline(Intersection *il,Monotonic *m,extended t) for this.
-
 }
 
 static void SplitMonotonicAt(Monotonic *m,int which,bigreal coord,
