@@ -1098,6 +1098,10 @@ static void SplitMonotonicAtFlex(Monotonic *m,int which,bigreal coord,
         endy = evalSpline(m->s, m->tend, 1);
       }
     }
+    {
+      id->m = NULL; id->otherm = NULL;
+      id->t = 0; id->othert = 0;
+    }
 
     if (( which==0 && coord<=m->b.minx ) || (which==1 && coord<=m->b.miny)) {
 	low = true;
