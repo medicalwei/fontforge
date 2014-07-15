@@ -77,7 +77,7 @@
 // to this code and capturing and diffing output in order to track changes
 // in errors and reports.
 // (The pointers tend to clutter the diff a bit.)
-#define FF_OVERLAP_VERBOSE
+// #define FF_OVERLAP_VERBOSE
 
 static char *glyphname=NULL;
 
@@ -921,8 +921,6 @@ return;
 	      _AddSpline(il,m2,t,false);
 	      // If the end of m before break-up has a reference to m, we must replace that reference with one to m2.
 	      if (m2->end != NULL) MListReplaceMonotonic(m2->end->monos, m, m2, true);
-ValidateMonotonic(m);
-ValidateMonotonic(m2);
 	}
     }
 ValidateMListTs_IF_VERBOSE(il->monos)
@@ -1313,9 +1311,6 @@ static Intersection *_AddIntersection(Intersection *ilist,Monotonic *m1,
     Intersection *il, *closest=NULL;
     bigreal dist, dx, dy, bestd=9e10;
 
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
-
     // We first search for an existing intersection.
     /* I tried changing from Within16 to Within64 here, and below, and the */
     /*  result was that I cause more new errors (about 6) than I fixed old(1) */
@@ -1392,14 +1387,8 @@ ValidateMListTs_IF_VERBOSE(il->monos)
 	closest->next = ilist;
 	ilist = closest;
         // Add the splines to the list in the intersection.
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
         AddSpline(closest,m1,t1);
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
         AddSpline(closest,m2,t2);
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
 ValidateMListTs_IF_VERBOSE(closest->monos)
         if (closest->monos == NULL) {
           SONotify("Never mind that new point.\n");
@@ -1415,8 +1404,6 @@ ValidateMListTs_IF_VERBOSE(closest->monos)
     }
           for ( il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
 return( ilist );
 }
 
@@ -1424,8 +1411,6 @@ static Intersection *AddIntersection(Intersection *ilist,Monotonic *m1,
 	Monotonic *m2,extended t1,extended t2,BasePoint *inter) {
     Intersection *il;
     extended ot1 = t1, ot2 = t2;
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
     for ( il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
     /* This is just a join between two adjacent monotonics. There might already*/
@@ -1529,8 +1514,6 @@ return( ilist );
 return( ilist );
     for ( il = ilist; il!=NULL; il=il->next )
 ValidateMListTs_IF_VERBOSE(il->monos)
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
 // If all else fails, we try to add an intersection.
 return( _AddIntersection(ilist,m1,m2,t1,t2,inter));
 }
@@ -1541,8 +1524,6 @@ static Intersection *SplitMonotonicsAt(Monotonic *m1,Monotonic *m2,
     memset(&id1, 0, sizeof(id1));
     memset(&id2, 0, sizeof(id2));
     Intersection *check;
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
     /* Intersections (even pseudo intersections) too close together are nasty things! */
     if ( Within64RoundingErrors(coord,((m1->s->splines[which].a*m1->tstart+m1->s->splines[which].b)*m1->tstart+m1->s->splines[which].c)*m1->tstart+m1->s->splines[which].d) ||
 	 Within64RoundingErrors(coord,((m1->s->splines[which].a*m1->tend+m1->s->splines[which].b)*m1->tend+m1->s->splines[which].c)*m1->tend+m1->s->splines[which].d ) ||
@@ -1570,8 +1551,6 @@ return( ilist );
     ilist = _AddIntersection(ilist,m1,m2,id1.t,id2.t,&id2.inter);
     // if ( check!=ilist )
 	// IError("Added too many intersections.");
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
 return( ilist );
 }
 
@@ -2574,11 +2553,7 @@ static Intersection *TryHarderWhenClose(int which, bigreal tried_value, Monotoni
 			if ( (which==0 && rh>m2->b.maxx && rh<=m2->next->b.maxx) ||
 				(which==1 && rh>m2->b.maxy && rh<=m2->next->b.maxy))
 			    m2 = m2->next;
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
 			ilist = SplitMonotonicsAt(m1,m2,which,high,ilist);
-ValidateMonotonic(m1);
-ValidateMonotonic(m2);
 		    }
 		    if ( (&m1->xup)[which]!=(&m2->xup)[which] ) {
 			/* the two monotonics cancel each other out */
