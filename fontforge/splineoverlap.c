@@ -1130,6 +1130,11 @@ static void SplitMonotonicAtFlex(Monotonic *m,int which,bigreal coord,
         SOError("We're about to create a spline with a very small t-value.\n");
       }
       if (doit) SplitMonotonicAtT(m,which,t,coord,id);
+      else {
+        id->t = t;
+        id->inter.x = evalSpline(m->s, t, 0);
+        id->inter.y = evalSpline(m->s, t, 1);
+      }
     }
     // I'm thinking about adapting AddSpline(Intersection *il,Monotonic *m,extended t) for this.
 
@@ -1478,6 +1483,8 @@ return( _AddIntersection(ilist,m1,m2,t1,t2,inter));
 static Intersection *SplitMonotonicsAt(Monotonic *m1,Monotonic *m2,
 	int which,bigreal coord,Intersection *ilist) {
     struct inter_data id1, id2;
+    memset(&id1, 0, sizeof(id1));
+    memset(&id2, 0, sizeof(id2));
     Intersection *check;
 ValidateMonotonic(m1);
 ValidateMonotonic(m2);
